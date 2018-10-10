@@ -1,4 +1,4 @@
- var Client = require('ftp');
+var Client = require('ftp');
 var fs = require('fs');
 var csv = require('csv')
 var obj = csv();
@@ -18,6 +18,7 @@ var connectionProperties = {
 	user: 'bob',
 	password: '12345'
 };
+
 c.on('ready', function () {
     c.list(function (err, list) {
             c.status(function (err, status) {
