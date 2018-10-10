@@ -10,35 +10,24 @@ function MyCSV(Fone, Ftwo, Fthree){
 };
 
 var MyData = [];
-
 var c = new Client();
+let writeStream = fs.createWriteStream('mycsv.xml');
 var connectionProperties = {
-host: 'localhost',
-port: 2221,
-user: 'bob',
-password: '12345'
+	host: 'localhost',
+	port: 2221,
+	user: 'bob',
+	password: '12345'
 };
-
 c.on('ready', function () {
-
     c.list(function (err, list) {
             c.status(function (err, status) {
         		console.log("connecting to server: "+status+'\n');
         	});
-    	list.forEach(function dirLog(item, index){
-
-    		console.log(item.name);
-
-    	});
-        if (err) throw err;
+    	
+        if (err) conosle.log("Failed to connect to server.");
         list.forEach(function (element, index, array) {
-            c.put('./SalesJan2009.csv', './csv_files/SalesJan2009.csv', function (err){
-            	if (err) console.log("Failed to push files to server...");
-            	else console.log("Files transfered successfully....");
-            });
-    
             c.get('./csv_files/mycsv.csv', function (err, stream) {
-                if (err) throw err;
+                if (err) console.log("Failed to get file from server.");
                 stream.once('close', function () {
                     c.end();
                 });
@@ -51,17 +40,27 @@ c.on('ready', function () {
     });
 
 });
+
+
 obj.from.path('mycsv-local.csv').to.array(function (data) {
 
     for (var index = 0; index < data.length; index++) {
 
 	        MyData.push(new MyCSV(data[index][0], data[index][1], data[index][2]));
     }
-    for (var index = 0; index < MyData.length; index++){
-
+    for (var index = 1; index < MyData.length; index++){
+    	for (var i = 0; i < 3; i++) {
+    		writeStream.write("<"+data[0][i]+">"+data[index][i]+"</"+data[0][i]+">");
+    	}
     }
-	
-    	console.log(MyData);
 });
 
+writeStream.on('finish', () =>{
+	console.log("Finsihed writing all data to file.");
+});
+
+c.put('./mycsv.xml', './xml_files/mycsv.xml', function (err){
+            	if (err) console.log("Failed to push files to server...");
+            	else console.log("Files transfered successfully....");
+});    
 c.connect(connectionProperties);
